@@ -17,7 +17,7 @@ public sealed class Plugin : IDalamudPlugin {
 
     public static Config Config { get; set; } = new();
     
-    [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; } = null!;
+    [PluginService] public static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] public static IFramework Framework { get; private set; } = null!;
     [PluginService] public static IClientState ClientState { get; private set; } = null!;
     [PluginService] public static IObjectTable Objects { get; private set; } = null!;
@@ -160,11 +160,11 @@ public sealed class Plugin : IDalamudPlugin {
         }
 
         // Check for new people
-        foreach (var o in Objects.Where(o => o is PlayerCharacter && o.ObjectIndex is < 200 and > 0)) {
-            if (o is not PlayerCharacter pc) continue;
-            if (!KnownObjects.ContainsKey(o.ObjectId)) {
+        foreach (var o in Objects.Where(o => o is IPlayerCharacter && o.ObjectIndex is < 200 and > 0)) {
+            if (o is not IPlayerCharacter pc) continue;
+            if (!KnownObjects.ContainsKey(o.EntityId)) {
                 var playerObject = new PlayerObject(pc);
-                KnownObjects.Add(o.ObjectId, playerObject);
+                KnownObjects.Add(o.EntityId, playerObject);
 
                     if (Silenced) continue;
                 if (TimeInHouse.ElapsedMilliseconds > 1000) {
@@ -173,7 +173,7 @@ public sealed class Plugin : IDalamudPlugin {
                     Config.AlreadyHere.DoAlert(playerObject);
                 }
             } else {
-                KnownObjects[o.ObjectId].LastSeen = 0;
+                KnownObjects[o.EntityId].LastSeen = 0;
             }
         }
         

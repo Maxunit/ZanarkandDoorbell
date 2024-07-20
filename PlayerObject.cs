@@ -9,7 +9,7 @@ public class PlayerObject {
     public uint World;
     public string WorldName => Plugin.DataManager.GetExcelSheet<World>()?.GetRow(World)?.Name?.RawString ?? $"World_{World}";
 
-    public PlayerObject(PlayerCharacter character) {
+    public PlayerObject(IPlayerCharacter character) {
         Name = character.Name.TextValue;
         World = character.HomeWorld.Id;
     }
