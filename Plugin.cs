@@ -97,7 +97,7 @@ public sealed class Plugin : IDalamudPlugin {
         345, 346, 347, 386, 610, // Goblet
         649, 650, 651, 652, 655, // Shirogane
         980, 981, 982, 983, 999, // Empyreum 
-        1249, 150, 1251,         // Minimalist
+        1249, 1250, 1251,         // Minimalist
     };
 
     private Dictionary<uint, PlayerObject> KnownObjects = new();
