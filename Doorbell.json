@@ -1,8 +1,6 @@
 {
   "Author": "Aida Enna",
   "Name": "Doorbell",
-  "InternalName": "Doorbell",
-  "AssemblyVersion": "1.0.3.7",
   "Description": "Play a chime when someone comes into a house, when they leave or when entering a house people are already inside.\n\nIcon by Flaticon",
   "Punchline": "Play a chime when someone comes into a house.",
   "RepoUrl": "https://github.com/Aida-Enna/Doorbell",
@@ -11,6 +9,5 @@
     "house",
     "aida"
   ],
-  "DalamudApiLevel": 11,
   "IconUrl": "https://i.imgur.com/wtOolxu.png"
 }
