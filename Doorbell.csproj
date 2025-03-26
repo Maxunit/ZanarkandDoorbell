@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Dalamud.NET.Sdk/12.0.2">
   <PropertyGroup>
     <Version>1.0.3.7</Version>
+	<OutputPath>..\Build\Doorbell\</OutputPath>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Doorbell.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NAudio" Version="1.10.0" />
