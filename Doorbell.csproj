@@ -10,10 +10,14 @@
   <ItemGroup>
     <PackageReference Include="NAudio" Version="1.10.0" />
   </ItemGroup>
-
+  
+  <ItemGroup>
+    <None Remove="doorbell.wav"/>
+  </ItemGroup>
+  
   <ItemGroup>
     <None Include="doorbell.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
