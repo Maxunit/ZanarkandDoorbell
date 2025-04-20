@@ -54,6 +54,12 @@ public class Alert {
                             i = tagEnd;
                             continue;
                         }
+                        case "<species>":
+                        {
+                            messageBuilder.AddText(player.species.ToString());
+                            i = tagEnd;
+                            continue;
+                        }
                     }
                 }
             }
