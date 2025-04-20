@@ -10,17 +10,18 @@
     "RepoUrl": "https://github.com/wolfricoz/Doorbell",
     "ApplicableVersion": "any",
     "CategoryTags": [
-      "utility"
+      "doorbell",
+      "house",
+      "aida",
+      "rico"
     ],
     "DalamudApiLevel": 12,
-    "IconUrl": "",
-    "ImageUrls": [
-      ""
-    ],
+    "IconUrl": "https://i.imgur.com/wtOolxu.png",
+
     "DownloadLinkInstall": "https://github.com/wolfricoz/Doorbell/releases/download/release/latest.zip",
     "IsHide": false,
     "IsTestingExclusive": false,
     "DownloadLinkTesting": "https://github.com/wolfricoz/Doorbell/releases/download/release/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/wolfricoz/Doorbell/releases/download/release/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/wolfricoz/Doorbell/releases/download/release/latest.zip"
   }
 ]
