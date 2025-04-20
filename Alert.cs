@@ -56,7 +56,11 @@ public class Alert {
                         }
                         case "<species>":
                         {
-                            messageBuilder.AddText(player.species.ToString());
+                            messageBuilder.Add(new UIForegroundPayload(518)); // Example color ID
+                            messageBuilder.Add(new EmphasisItalicPayload(true)); // Start bold
+                            messageBuilder.AddText(player.IsLala ? "This user is a Lalafel" : "");
+                            messageBuilder.Add(new EmphasisItalicPayload(false)); // End bold
+                            messageBuilder.Add(new UIForegroundPayload(0)); // Reset color
                             i = tagEnd;
                             continue;
                         }
