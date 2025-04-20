@@ -5,7 +5,7 @@
     "Punchline": "Play a chime when someone comes into a house and sniffs out lalafels.",
     "Description": "Play a chime when someone comes into a house and sniffs out lalafels.",
     "Changelog": "",
-    "InternalName": "Doorbell Echo",
+    "InternalName": "Doorbell",
     "AssemblyVersion": "1.1.2.11",
     "RepoUrl": "https://github.com/wolfricoz/Doorbell",
     "ApplicableVersion": "any",
