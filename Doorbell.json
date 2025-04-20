@@ -10,5 +10,8 @@
     "aida",
     "rico"
   ],
-  "IconUrl": "https://i.imgur.com/wtOolxu.png"
+  "IconUrl": "https://i.imgur.com/wtOolxu.png",
+  "DownloadLinkInstall": "https://github.com/wolfricoz/Doorbell/releases/download/release/latest.zip",
+  "DownloadLinkTesting": "https://github.com/wolfricoz/Doorbell/releases/download/release/latest.zip",
+  "DownloadLinkUpdate": "https://github.com/wolfricoz/Doorbell/releases/download/release/latest.zip"
 }
