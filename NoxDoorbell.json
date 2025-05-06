@@ -1,9 +1,9 @@
 {
-  "Author": "Aida Enna, Edited by Rico Stryker",
-  "Name": "Doorbell Advanced",
+  "Author": "Aida Enna, Edited by Rico Stryker, Rebranded by Maxunit",
+  "Name": "Nox Doorbell",
   "Description": "Play a chime when someone comes into a house, when they leave or when entering a house people are already inside.\n\nIcon by Flaticon",
   "Punchline": "Play a chime when someone comes into a house.",
-  "RepoUrl": "https://github.com/wolfricoz/Doorbell",
+  "RepoUrl": "https://github.com/Maxunit/NoxDoorbell",
   "Tags": [
     "doorbell",
     "house",
@@ -11,7 +11,7 @@
     "rico"
   ],
   "IconUrl": "https://i.imgur.com/wtOolxu.png",
-  "DownloadLinkInstall": "https://github.com/wolfricoz/Doorbell/releases/download/release/latest.zip",
-  "DownloadLinkTesting": "https://github.com/wolfricoz/Doorbell/releases/download/release/latest.zip",
-  "DownloadLinkUpdate": "https://github.com/wolfricoz/Doorbell/releases/download/release/latest.zip"
+  "DownloadLinkInstall": "https://github.com/Maxunit/NoxDoorbell/releases/download/release/latest.zip",
+  "DownloadLinkTesting": "https://github.com/Maxunit/NoxDoorbell/releases/download/release/latest.zip",
+  "DownloadLinkUpdate": "https://github.com/Maxunit/NoxDoorbell/releases/download/release/latest.zip"
 }
