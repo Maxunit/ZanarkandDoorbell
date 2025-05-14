@@ -13,7 +13,7 @@ using Dalamud.Plugin.Services;
 namespace Doorbell;
 
 public sealed class Plugin : IDalamudPlugin {
-    public static string Name => "NoxDoorbell";
+    public static string Name => "Zanarkand Doorbell";
 
     public static Config Config { get; set; } = new();
     

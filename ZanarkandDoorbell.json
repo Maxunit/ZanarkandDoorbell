@@ -1,0 +1,17 @@
+{
+  "Author": "Aida Enna, Edited by Rico Stryker, Rebranded by Maxunit",
+  "Name": "Zanarkand Doorbell",
+  "Description": "Play a chime when someone comes into a house, when they leave or when entering a house people are already inside.\n\nIcon by Flaticon",
+  "Punchline": "Play a chime when someone comes into a house.",
+  "RepoUrl": "https://github.com/Maxunit/ZanarkandDoorbell",
+  "Tags": [
+    "doorbell",
+    "house",
+    "aida",
+    "rico"
+  ],
+  "IconUrl": "https://i.imgur.com/wtOolxu.png",
+  "DownloadLinkInstall": "https://github.com/Maxunit/ZanarkandDoorbell/releases/download/release/latest.zip",
+  "DownloadLinkTesting": "https://github.com/Maxunit/ZanarkandDoorbell/releases/download/release/latest.zip",
+  "DownloadLinkUpdate": "https://github.com/Maxunit/ZanarkandDoorbell/releases/download/release/latest.zip"
+}
