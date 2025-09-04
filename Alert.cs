@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
-using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
@@ -13,6 +13,10 @@ namespace Doorbell;
 
 public class Alert
 {
+    // NEU: Ein statischer Lock, um zu verhindern, dass mehrere Sounds gleichzeitig spielen
+    private static bool isSoundPlaying = false;
+    private static readonly object soundLock = new object();
+
     public bool ChatEnabled = false;
     public string ChatFormat = string.Empty;
 
@@ -20,15 +24,14 @@ public class Alert
     public string SoundFile = string.Empty;
     public float SoundVolume = 1;
 
-    public bool PlayLalaAlert = false; // Ham: Added for forcing the lala sound to play later even when doorbell sound is turned off
-
-    [JsonIgnore] private WaveStream? audioFile;
-    [JsonIgnore] private WaveOutEvent? audioEvent;
+    public bool LalafellSoundEnabled = true;
+    public string LalafellSoundFile = string.Empty;
+    public float LalafellSoundVolume = 1;
 
     public void DoAlert(PlayerObject player)
     {
         PrintChat(player);
-        PlaySound();
+        PlaySound(player.IsLala);
     }
 
     public void PrintChat(PlayerObject player)
@@ -68,16 +71,12 @@ public class Alert
                             }
                         case "<species>":
                             {
-                                messageBuilder.Add(new UIForegroundPayload(518)); // Example color ID
-                                messageBuilder.Add(new EmphasisItalicPayload(true)); // Start bold
+                                messageBuilder.Add(new UIForegroundPayload(518));
+                                messageBuilder.Add(new EmphasisItalicPayload(true));
                                 messageBuilder.AddText(player.IsLala ? "This user is a Lalafel" : "");
-                                messageBuilder.Add(new EmphasisItalicPayload(false)); // End bold
-                                messageBuilder.Add(new UIForegroundPayload(0)); // Reset color
+                                messageBuilder.Add(new EmphasisItalicPayload(false));
+                                messageBuilder.Add(new UIForegroundPayload(0));
                                 i = tagEnd;
-                                if (player.IsLala)
-                                {
-                                    PlayLalaAlert = true; // Ham: Set bool to true to skip doorbell sound setting to force it
-                                }
                                 continue;
                             }
                     }
@@ -87,9 +86,6 @@ public class Alert
             messageBuilder.AddText($"{ChatFormat[i]}");
         }
 
-        var chatMessage = $"[{Plugin.Name}] {ChatFormat}"
-            .Replace("<name>", player.Name);
-
         var entry = new XivChatEntry()
         {
             Message = messageBuilder.Build()
@@ -98,76 +94,110 @@ public class Alert
         Plugin.Chat.Print(entry);
     }
 
-    public void PlaySound()
+    public void PlaySound(bool isLalaAlert)
     {
-        if (!PlayLalaAlert) // Ham: Skip doorbell sound setting when bool was set to true 
+        bool useLalaSettings = isLalaAlert && LalafellSoundEnabled;
+
+        if (useLalaSettings)
         {
-            if (!SoundEnabled) return;
         }
-        Task.Run(() => {
-            // if (audioFile == null || audioEvent == null) SetupSound();
-            SetupSound();
-            if (audioFile == null || audioEvent == null) return;
-            audioEvent.Stop();
-            audioFile.Position = 0;
-            audioEvent.Play();
-        });
-    }
-
-    public void SetupSound()
-    {
-        DisposeSound();
-
-        try
+        else if (!SoundEnabled)
         {
-            var file = SoundFile;
-            if (string.IsNullOrWhiteSpace(file))
+            return;
+        }
+
+        // KORREKTUR: Verhindern, dass ein neuer Sound gestartet wird, wenn bereits einer läuft.
+        lock (soundLock)
+        {
+            if (isSoundPlaying)
             {
-                if (PlayLalaAlert) // Play the special lala warning bell when bool was set to true
+                Plugin.Log.Debug("[Doorbell] Sound is already playing, skipping new sound request.");
+                return;
+            }
+            isSoundPlaying = true;
+        }
+
+        Task.Run(() =>
+        {
+            string requiredSoundPath;
+            float requiredVolume;
+
+            if (useLalaSettings)
+            {
+                requiredVolume = LalafellSoundVolume;
+                requiredSoundPath = LalafellSoundFile;
+                if (string.IsNullOrWhiteSpace(requiredSoundPath))
+                    requiredSoundPath = Path.Join(Plugin.PluginInterface.AssemblyLocation.Directory!.FullName, "lalawarning.wav");
+            }
+            else
+            {
+                requiredVolume = SoundVolume;
+                requiredSoundPath = SoundFile;
+                if (string.IsNullOrWhiteSpace(requiredSoundPath))
+                    requiredSoundPath = Path.Join(Plugin.PluginInterface.AssemblyLocation.Directory!.FullName, "doorbell.wav");
+            }
+
+            if (!requiredSoundPath.IsHttpUrl() && !File.Exists(requiredSoundPath))
+            {
+                var errorMsg = $"[Doorbell] Sound file not found: {requiredSoundPath}";
+                Plugin.Log.Warning(errorMsg);
+                lock (soundLock) { isSoundPlaying = false; }
+                return;
+            }
+
+            WaveStream? soundToPlay = null;
+            WaveOutEvent? outputDevice = null;
+            ManualResetEvent? waitHandle = null;
+
+            try
+            {
+                waitHandle = new ManualResetEvent(false);
+
+                if (requiredSoundPath.IsHttpUrl())
                 {
-                    file = Path.Join(Plugin.PluginInterface.AssemblyLocation.Directory!.FullName, "lalawarning.wav");
-                    PlayLalaAlert = false;
+                    soundToPlay = new MediaFoundationReader(requiredSoundPath);
+                    outputDevice = new WaveOutEvent();
+                    outputDevice.Volume = MathF.Max(0, MathF.Min(1, requiredVolume));
                 }
                 else
                 {
-                    file = Path.Join(Plugin.PluginInterface.AssemblyLocation.Directory!.FullName, "doorbell.wav");
+                    soundToPlay = new AudioFileReader(requiredSoundPath);
+                    (soundToPlay as AudioFileReader)!.Volume = requiredVolume;
+                    outputDevice = new WaveOutEvent();
+                }
+
+                outputDevice.PlaybackStopped += (sender, args) =>
+                {
+                    // Sicherstellen, dass wir nicht auf ein bereits zerstörtes Handle zugreifen
+                    if (waitHandle != null && !waitHandle.SafeWaitHandle.IsClosed)
+                    {
+                        waitHandle.Set();
+                    }
+                };
+
+                outputDevice.Init(soundToPlay);
+                outputDevice.Play();
+
+                // Wartet, bis das PlaybackStopped-Event signalisiert wird
+                waitHandle.WaitOne(10000);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.Error(ex, "[Doorbell] Caught exception during sound playback.");
+            }
+            finally
+            {
+                // Garantiert die Freigabe aller Ressourcen in der korrekten Reihenfolge
+                soundToPlay?.Dispose();
+                outputDevice?.Dispose();
+                waitHandle?.Dispose();
+
+                // Den Lock freigeben, damit der nächste Sound gespielt werden kann.
+                lock (soundLock)
+                {
+                    isSoundPlaying = false;
                 }
             }
-
-            if (file.IsHttpUrl())
-            {
-                audioFile = new MediaFoundationReader(file);
-                audioEvent = new WaveOutEvent();
-                audioEvent.Volume = MathF.Max(0, MathF.Min(1, SoundVolume));
-                audioEvent.Init(audioFile);
-                return;
-            }
-
-            if (!File.Exists(file))
-            {
-                Plugin.Log.Warning($"{file} does not exist.");
-                return;
-            }
-
-            audioFile = new AudioFileReader(file);
-            (audioFile as AudioFileReader)!.Volume = SoundVolume;
-            audioEvent = new WaveOutEvent();
-            audioEvent.Init(audioFile);
-        }
-        catch (Exception ex)
-        {
-            Plugin.Log.Error(ex, "Error initalizing sound.");
-        }
+        });
     }
-
-    public void DisposeSound()
-    {
-        audioFile?.Dispose();
-        audioEvent?.Dispose();
-
-        audioFile = null;
-        audioEvent = null;
-    }
-
-
 }
